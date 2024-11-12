@@ -1,0 +1,8 @@
+{
+    "cssvar.files": [
+        "**/node_modules/open-props/open-props.min.css",
+        "**/src/style.css"
+    ],
+    "cssvar.ignore": [],
+    "svelte.plugin.css.globals": ""
+}

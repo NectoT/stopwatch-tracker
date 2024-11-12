@@ -1,0 +1,34 @@
+@import 'open-props/postcss/style';
+@import 'open-props/normalize.min.css';
+
+:root {
+    --default-transition: all 0.2s ease-out;
+}
+
+:root.dark {
+    --pr-font-color: var(--violet-4);
+    --pr-bg-color: var(--stone-11);
+}
+
+:root.light {
+    --pr-font-color: var(--violet-12);
+    --pr-bg-color: white;
+}
+
+html,
+body {
+    background-color: var(--pr-bg-color);
+    transition: var(--default-transition);
+    margin: 0;
+    padding: var(--size-2);
+    width: 100%;
+    height: 100%;
+
+    color: var(--pr-font-color);
+
+    font-family: var(--font-mono);
+}
+
+#app {
+    height: 100vh;
+}
