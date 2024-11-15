@@ -4,6 +4,4 @@ import {main} from '../models';
 
 export function GetUserColorTheme():Promise<main.ColorTheme>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function SetUserColorTheme(arg1:main.ColorTheme):Promise<void>;

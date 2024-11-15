@@ -28,6 +28,9 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
+		EnumBind: []interface{}{
+			ColorThemes,
+		},
 	})
 
 	if err != nil {

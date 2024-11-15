@@ -6,10 +6,6 @@ export function GetUserColorTheme() {
   return window['go']['main']['App']['GetUserColorTheme']();
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function SetUserColorTheme(arg1) {
   return window['go']['main']['App']['SetUserColorTheme'](arg1);
 }

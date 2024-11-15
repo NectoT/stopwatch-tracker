@@ -17,9 +17,17 @@ type App struct {
 type ColorTheme string
 
 const (
-	Light = "light"
-	Dark  = "dark"
+	Light ColorTheme = "light"
+	Dark  ColorTheme = "dark"
 )
+
+var ColorThemes = []struct {
+	Value  ColorTheme
+	TSName string
+}{
+	{Light, "Light"},
+	{Dark, "Dark"},
+}
 
 type UserConfig struct {
 	ColorTheme ColorTheme `json:"ColorTheme"`
@@ -74,9 +82,4 @@ func (a *App) SetUserColorTheme(theme ColorTheme) {
 		fmt.Println("Could not truncate and open a config file")
 	}
 	json.NewEncoder(configFile).Encode(a.userConfig)
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
 }

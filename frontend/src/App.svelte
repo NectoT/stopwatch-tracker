@@ -1,8 +1,8 @@
 <script lang="ts" module>
-    let themeState: "dark" | "light" = $state("light");
+    let themeState: main.ColorTheme = $state(main.ColorTheme.Light);
 
     export let theme = {
-        get state(): "dark" | "light" {
+        get state(): main.ColorTheme {
             return themeState;
         },
     };
@@ -15,17 +15,18 @@
     import {
         GetUserColorTheme,
         SetUserColorTheme,
-    } from "../wailsjs/go/main/App";
+    } from "@wails/go/main/App";
     import { fade } from "svelte/transition";
+    import { main } from "@wails/go/models";
 
     const htmlElement = document.getElementsByTagName("html")[0];
     htmlElement.classList.add("light");
 
     function toggleColorScheme() {
-        if (themeState == "dark") {
-            themeState = "light";
+        if (themeState == main.ColorTheme.Dark) {
+            themeState = main.ColorTheme.Light;
         } else {
-            themeState = "dark";
+            themeState = main.ColorTheme.Dark;
         }
         SetUserColorTheme(themeState);
     }
@@ -46,7 +47,7 @@
 
 <header>
     <button class="light-dark-toggle" onclick={toggleColorScheme}>
-        {#if themeState == "light"}
+        {#if themeState == main.ColorTheme.Light}
             <Sun></Sun>
         {:else}
             <Moon></Moon>
