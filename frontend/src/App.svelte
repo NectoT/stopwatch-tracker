@@ -13,14 +13,21 @@
     import Sun from "./assets/icons/Sun.svelte";
     import { onMount } from "svelte";
     import {
+        GetStopwatchIds,
         GetUserColorTheme,
         SetUserColorTheme,
     } from "@wails/go/main/App";
-    import { fade } from "svelte/transition";
+    import { fade, fly } from "svelte/transition";
     import { main } from "@wails/go/models";
+    import Plus from "./assets/icons/Plus.svelte";
+    import { flip } from "svelte/animate";
+    import Stopwatch from "./components/Stopwatch.svelte";
+    import {SvelteSet} from "svelte/reactivity"
 
     const htmlElement = document.getElementsByTagName("html")[0];
     htmlElement.classList.add("light");
+
+    let timerIds: SvelteSet<string> = $state(new SvelteSet());
 
     function toggleColorScheme() {
         if (themeState == main.ColorTheme.Dark) {
@@ -33,6 +40,7 @@
 
     onMount(() => {
         GetUserColorTheme().then((e) => (themeState = e));
+        GetStopwatchIds().then(ids => timerIds = new SvelteSet(ids));
     });
 
     $effect(() => {
@@ -43,6 +51,15 @@
             html.classList.replace("dark", "light");
         }
     });
+
+    async function createTimer() {
+        timerIds.add(crypto.randomUUID());
+        timerIds = timerIds
+    }
+
+    async function onTimerDeleted(id: string) {
+        timerIds.delete(id);
+    }  
 </script>
 
 <header>
@@ -68,10 +85,49 @@
     </p>
 {/key}
 
+<div class="timers-container">
+    {#each timerIds as id (id)}
+        <div class="item" in:fly={{duration: 200, y: 0, x: 200}} animate:flip={{duration: 200}}>
+            <Stopwatch id={id} onDelete={() => onTimerDeleted(id)}></Stopwatch>
+        </div>
+    {/each}
+    <button class="item outlined new-timer-button" onclick={e => createTimer()}>
+        <Plus width="70%" height="70%"></Plus>
+    </button>
+</div>
+
 <style lang="postcss">
     header {
         display: flex;
         flex-flow: row;
+    }
+
+    .item {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        max-width: var(--size-15);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .timers-container {
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        /* grid-auto-flow: column; */
+        grid-template-columns: repeat(auto-fit, minmax(var(--size-13), 1fr));
+        /* grid-auto-columns: minmax(var(--size-12), 100%); */
+        max-width: 80%;
+        align-items: center;
+        justify-items: center;
+        margin: auto;
+        gap: var(--size-8);
+    }
+
+    .timers-container>* {
+        flex-grow: 1;
+        flex-basis: 0px;
     }
 
     .light-dark-toggle {

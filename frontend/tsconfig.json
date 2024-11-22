@@ -8,6 +8,8 @@
     "baseUrl": ".",
     "paths": {
         "@wails/*": ["wailsjs/*"],
+        "@assets/*": ["src/assets/*"],
+        "@components/*": ["src/components/*"],
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.

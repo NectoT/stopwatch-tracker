@@ -8,11 +8,15 @@
 :root.dark {
     --pr-font-color: var(--violet-4);
     --pr-bg-color: var(--stone-11);
+    --sec-bg-color: var(--violet-12);
+    --border-color: var(--indigo-2);
 }
 
 :root.light {
     --pr-font-color: var(--violet-12);
     --pr-bg-color: white;
+    --sec-bg-color: var(--stone-4);
+    --border-color: var(--indigo-12);
 }
 
 html,
@@ -31,4 +35,30 @@ body {
 
 #app {
     height: 100vh;
+}
+
+button {
+    transition: var(--default-transition);
+}
+
+button.outlined {
+    border-radius: var(--size-5);
+    background-color: transparent;
+    border-width: var(--border-size-1);
+    border-color: var(--border-color);
+    --shadow-size: var(--size-3);
+    box-shadow: 
+            inset 0px 0px var(--shadow-size) var(--border-color),
+            0px 0px var(--shadow-size) var(--border-color);
+    border-style: solid;
+}
+
+button.outlined:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    --shadow-size: var(--size-5);
+}
+
+button.outlined:active {
+    background-color: rgba(0, 0, 0, 0.4);
+    --shadow-size: var(--size-5);
 }

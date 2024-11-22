@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [svelte()],
   resolve: {
     alias: {
-      "@wails": "/wailsjs"
+      "@wails": "/wailsjs",
+      "@assets": "/src/assets",
+      "@components": "/src/components",
     }
   }
 })
