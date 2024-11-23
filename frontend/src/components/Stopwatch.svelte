@@ -13,6 +13,41 @@
     let { id, onLoaded = () => {}, onDelete: onDelete = () => {} }: Props = $props();
 
     let time = $state(0);
+    let displayTime: {upper?: string, center: string, lower?: string} = $derived.by(() => {
+        let date = new Date(time);
+
+        const hour = 1000 * 60 * 60
+        const day = hour * 24
+
+        let upper: string | undefined = undefined;
+        if (time / day > 1) {
+            upper = `${Math.floor(time / day)} day${time / day > 2 ? 's' : ''}`
+        }
+        
+        let center: string;
+        let lower: string | undefined = undefined;
+        if (time / hour > 1) {
+            center = (
+                String(date.getUTCHours()).padStart(2, "0") + 
+                ':' +
+                String(date.getUTCMinutes()).padStart(2, "0")
+            );
+            lower = String(date.getUTCSeconds()).padStart(2, "0");
+        } else {
+            center = (
+                String(date.getUTCMinutes()).padStart(2, "0") + 
+                ':' +
+                String(date.getUTCSeconds()).padStart(2, "0")
+            );
+        }
+        
+        return {
+            upper,
+            center,
+            lower
+        }
+    })
+
     let active = $state(false);
     let hue = $state(Math.random() * 360);
     let name = $state("Name");
@@ -78,15 +113,6 @@
         }
     })
 
-    function formatTime(time: number): string {
-        let date = new Date(time);
-        return (
-            String(date.getMinutes()).padStart(2, "0") + 
-            ':' +
-            String(date.getSeconds()).padStart(2, "0")
-        );
-    }
-
     async function toggleStopwatch() {
         active = !active;
         await UpdateStopwatchTime(id, active, time)
@@ -137,7 +163,7 @@
         </div>
 
         <input type="text" bind:value={name} onfocusout={() => UpdateStopwatchName(id, name)}
-                style="font-size: clamp(var(--size-6), {getOptimalNameSize()}px, var(--size-9));"
+                style="font-size: clamp(var(--size-6), {getOptimalNameSize()}px, var(--size-8));"
                 size="{Math.max(name.length, 4)}" class="name"/>
     </div>
 
@@ -163,10 +189,24 @@
             </svg>
     
         </div>
-        <svg class="time" viewBox="0 -8 25 11">
-            {#key time}
-            <text font-size="10px" x="50%" y="0" text-anchor="middle">{formatTime(time)}</text>
-            {/key}
+
+        <svg class="time" viewBox="0 0 20 15">
+            <text style="font-size: 8.5px" text-anchor="middle" x="10" y="10">
+                {displayTime.center}
+                <!-- 06:28 -->
+            </text>
+            {#if displayTime.upper !== undefined}
+                <text style="font-size: 4px" text-anchor="middle" x="10" y="4">
+                    {displayTime.upper}
+                    <!-- 23 days -->
+                </text>
+            {/if}
+            {#if displayTime.lower !== undefined}    
+                <text style="font-size: 4px" text-anchor="middle" x="10" y="14">
+                    {displayTime.lower}
+                    <!-- 47 -->
+                </text>
+            {/if}
         </svg>
     </button>
 </div>
@@ -189,7 +229,8 @@
         text-align: center;
         z-index: 2;
         text-overflow: ellipsis;
-        margin-bottom: var(--size-2);
+        line-height: 0;
+        margin-bottom: var(--size-1);
     }
 
     :root.dark .name {
@@ -272,6 +313,7 @@
         display: flex;
         flex-flow: column;
         align-items: center;
+        justify-content: center;
         background-color: transparent;
         --border-color: hsl(var(--hue), 25%, 40%);
     }
@@ -333,7 +375,8 @@
     .time {
         width: 80%;
         font-family: var(--font-rounded-sans);
-        margin: auto;
+        margin-left: auto;
+        margin-right: auto;
         background-color: transparent;
         z-index: 2;
     }
