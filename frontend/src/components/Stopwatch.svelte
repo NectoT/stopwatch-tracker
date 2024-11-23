@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, untrack } from "svelte";
-    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchTime } from "@wails/go/main/App";
+    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go/main/App";
     import Trash from "@assets/icons/Trash.svelte";
     import { tweened } from "svelte/motion";
     import Reset from "@assets/icons/Reset.svelte";
@@ -15,6 +15,7 @@
     let time = $state(0);
     let active = $state(false);
     let hue = $state(Math.random() * 360);
+    let name = $state("Name");
 
     let initialArrowRotation = $state(0);
 
@@ -22,6 +23,8 @@
 
     let destructionProgress = tweened(0);
     let resetProgress = tweened(0);
+
+    let stopwatchWidth: number = $state(0);
 
     $effect(() => {
         if (!loading) {
@@ -33,6 +36,7 @@
         if (await HasStopwatch(id)) {
             let data = await GetStopwatch(id);
             hue = data.Hue;
+            name = data.Name;
             active = data.IsActive;
             time = data.TimeAccumulated;
             if (active) {
@@ -44,7 +48,7 @@
             loading = false;
         } else {
             loading = false;
-            await AddStopwatch(id, "", hue)
+            await AddStopwatch(id, name, hue)
         }
     })
 
@@ -114,17 +118,27 @@
     function cancelReset() {
         resetProgress.set(0);
     }
+
+    function getOptimalNameSize(): number {
+        return stopwatchWidth / (name.length);
+    }
 </script>
 
-<div class="external">
-    <div class="buttons-bar">
-        <button onmousedown={startDestruction} onmouseup={cancelDestruction}>
-            <Trash style="width: 100%; height: 100%"></Trash>
-        </button>
+<div class="external" style="--hue: {hue}deg">
+    <div class="front-layer" bind:clientWidth={stopwatchWidth}>
+        <div class="buttons-bar">
+            <button onmousedown={startDestruction} onmouseup={cancelDestruction}>
+                <Trash style="width: 100%; height: 100%"></Trash>
+            </button>
+    
+            <button onmousedown={startReset} onmouseup={cancelReset}>
+                <Reset style="width: 100%; height: 100%"></Reset>
+            </button>
+        </div>
 
-        <button onmousedown={startReset} onmouseup={cancelReset}>
-            <Reset style="width: 100%; height: 100%"></Reset>
-        </button>
+        <input type="text" bind:value={name} onfocusout={() => UpdateStopwatchName(id, name)}
+                style="font-size: clamp(var(--size-6), {getOptimalNameSize()}px, var(--size-9));"
+                size="{Math.max(name.length, 4)}" class="name"/>
     </div>
 
     <div class="progress-bar destruction" style="--progress: {$destructionProgress * 100}%"></div>
@@ -158,15 +172,47 @@
 </div>
 
 <style>
-    .buttons-bar {
+    .front-layer {
         position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-flow: column;
+        justify-content: space-between;
+    }
+
+    .name {
+        background: transparent;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        z-index: 2;
+        text-overflow: ellipsis;
+        margin-bottom: var(--size-2);
+    }
+
+    :root.dark .name {
+        color: hsl(var(--hue), 100%, 80%);
+    }
+
+    :root.light .name {
+        filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.5));
+        color: hsl(var(--hue), 100%, 60%);
+    }
+
+    .name:focus {
+        outline: none;
+    }
+
+    .buttons-bar {
         width: 100%;
         display: flex;
         justify-content: space-between;
         height: fit-content;
     }
 
-    .buttons-bar * {
+    .buttons-bar button {
         z-index: 2;
     }
 

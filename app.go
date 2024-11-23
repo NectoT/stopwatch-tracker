@@ -198,3 +198,10 @@ func (a *App) UpdateStopwatchTime(id string, timerActive bool, timeAccumulated i
 	a.userData[id] = data
 	a.updateUserDataFile()
 }
+
+func (a *App) UpdateStopwatchName(id string, name string) {
+	data := a.userData[id]
+	data.Name = name
+	a.userData[id] = data
+	a.updateUserDataFile()
+}
