@@ -24,7 +24,9 @@
     let resetProgress = tweened(0);
 
     $effect(() => {
-        onLoaded()
+        if (!loading) {
+            onLoaded();
+        }
     })
 
     onMount(async () => {
