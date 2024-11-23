@@ -239,12 +239,6 @@
         filter: brightness(2.5);
     }
 
-    @property --degrees {
-        syntax: '<angle>';
-        initial-value: 180deg;
-        inherits: false;
-    }
-
     .progress-bar {
         position: absolute;
         width: 100%;
@@ -265,10 +259,6 @@
         --color: color-mix(in srgb, var(--pr-font-color) 15%, transparent);
     }
 
-    /* :root.light .progress-bar.reset {
-        --color: rgba(0, 0, 0, 0.2);
-    } */
-
     .external {
         width: 100%;
         height: 100%;
@@ -284,7 +274,6 @@
         align-items: center;
         background-color: transparent;
         --border-color: hsl(var(--hue), 25%, 40%);
-        /* --initial-rotation: 0.542343289deg; */
     }
 
     :root.dark {
