@@ -11,7 +11,7 @@
 <script lang="ts">
     import Moon from "./assets/icons/Moon.svelte";
     import Sun from "./assets/icons/Sun.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import {
         GetStopwatchIds,
         GetUserColorTheme,
@@ -24,32 +24,28 @@
     import Stopwatch from "./components/Stopwatch.svelte";
     import {SvelteSet} from "svelte/reactivity"
 
-    const htmlElement = document.getElementsByTagName("html")[0];
-    htmlElement.classList.add("light");
-
     let timerIds: SvelteSet<string> = $state(new SvelteSet());
-
-    function toggleColorScheme() {
+    
+    async function toggleColorScheme() {
+        let html = document.getElementsByTagName("html")[0];
         if (themeState == main.ColorTheme.Dark) {
+            html.classList.replace("dark", "light");
+            await tick();
             themeState = main.ColorTheme.Light;
         } else {
+            html.classList.replace("light", "dark");
+            await tick();
             themeState = main.ColorTheme.Dark;
         }
         SetUserColorTheme(themeState);
     }
 
     onMount(() => {
-        GetUserColorTheme().then((e) => (themeState = e));
+        GetUserColorTheme().then((e) => {
+            themeState = e;
+            document.getElementsByTagName("html")[0].classList.add(e);
+        });
         GetStopwatchIds().then(ids => timerIds = new SvelteSet(ids));
-    });
-
-    $effect(() => {
-        let html = document.getElementsByTagName("html")[0];
-        if (themeState == "dark") {
-            html.classList.replace("light", "dark");
-        } else {
-            html.classList.replace("dark", "light");
-        }
     });
 
     async function createTimer() {
