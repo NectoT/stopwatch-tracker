@@ -61,17 +61,25 @@ func NewApp() *App {
 	return &App{}
 }
 
+func createJson[K any](jsonPath string, defaultJson K) {
+	configFile, err := os.Create(jsonPath)
+	if err != nil {
+		panic(err)
+	}
+	json.NewEncoder(configFile).Encode(defaultJson)
+}
+
 func getOrCreateJson[K any](jsonPath string, defaultJson K) K {
 	if configFile, err := os.Open(jsonPath); errors.Is(err, os.ErrNotExist) {
-		configFile, err := os.Create(jsonPath)
-		if err != nil {
-			panic(err)
-		}
-		json.NewEncoder(configFile).Encode(defaultJson)
+		createJson(jsonPath, defaultJson)
 		return defaultJson
 	} else {
 		var jsonStruct K
-		json.NewDecoder(configFile).Decode(&jsonStruct)
+		err := json.NewDecoder(configFile).Decode(&jsonStruct)
+		if err != nil {
+			createJson(jsonPath, defaultJson)
+			return defaultJson
+		}
 		return jsonStruct
 	}
 }
@@ -83,13 +91,13 @@ func (a *App) startup(ctx context.Context) {
 
 	configPath, err := getConfigPath()
 	if err != nil {
-		return
+		panic(err)
 	}
 	a.userConfig = getOrCreateJson(configPath, UserConfig{ColorTheme: Light})
 
 	dataPath, err := getUserDataPath()
 	if err != nil {
-		return
+		panic(err)
 	}
 	a.userData = getOrCreateJson(dataPath, UserData{})
 }
