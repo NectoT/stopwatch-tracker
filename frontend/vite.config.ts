@@ -9,6 +9,7 @@ export default defineConfig({
       "@wails": "/wailsjs",
       "@assets": "/src/assets",
       "@components": "/src/components",
+      "@App": "/src/App.svelte",
     }
   }
 })

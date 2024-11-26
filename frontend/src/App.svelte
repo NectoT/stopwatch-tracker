@@ -23,6 +23,10 @@
     import { flip } from "svelte/animate";
     import Stopwatch from "./components/Stopwatch.svelte";
     import {SvelteSet} from "svelte/reactivity"
+    import StopwatchIcon from "@assets/icons/Stopwatch.svelte"
+    import StatsIcon from "@assets/icons/Stats.svelte";
+    import Carouselle from "@components/Carouselle.svelte";
+    import Stats from "@components/Stats.svelte";
 
     let timerIds: SvelteSet<string> = $state(new SvelteSet());
     
@@ -68,19 +72,23 @@
     </button>
 </header>
 
-<h1>Hello, world!</h1>
+<div class="misc">
+    <h1>Hello, world!</h1>
+    
+    {#key theme.state}
+        <!-- Transitions happen because of the key changing, not because of #if directive -->
+        <p in:fade={{ delay: 200, duration: 200 }} out:fade={{ duration: 200 }}>
+            {#if theme.state == "light"}
+                It's day time right now!
+            {:else}
+                It's night time! 🎃
+            {/if}
+        </p>
+    {/key}
+</div>
 
-{#key theme.state}
-    <!-- Transitions happen because of the key changing, not because of #if directive -->
-    <p in:fade={{ delay: 200, duration: 200 }} out:fade={{ duration: 200 }}>
-        {#if theme.state == "light"}
-            It's day time right now!
-        {:else}
-            It's night time! 🎃
-        {/if}
-    </p>
-{/key}
 
+{#snippet timers()}    
 <div class="timers-container">
     {#each timerIds as id (id)}
         <div class="item" in:fly={{duration: 200, y: 0, x: 200}} animate:flip={{duration: 200}}>
@@ -91,11 +99,33 @@
         <Plus width="70%" height="70%"></Plus>
     </button>
 </div>
+{/snippet}
+
+{#snippet timersLogo()}
+    <StopwatchIcon style="width: 75%"></StopwatchIcon>
+{/snippet}
+
+{#snippet stats()}
+    <Stats></Stats>
+{/snippet}
+
+{#snippet statsLogo()}
+    <StatsIcon style="width: 75%"></StatsIcon>
+{/snippet}
+
+<div style="flex-grow: 1">
+    <Carouselle children={[timers, stats]} childrenIcons={[timersLogo, statsLogo]}/>
+</div>
 
 <style lang="postcss">
     header {
         display: flex;
         flex-flow: row;
+        padding: var(--size-2);
+    }
+
+    .misc {
+        margin: var(--size-2);
     }
 
     .item {

@@ -166,6 +166,10 @@ func (a *App) GetStopwatchIds() []string {
 	return ids
 }
 
+func (a *App) GetStopwatches() map[string]StopwatchData {
+	return a.userData
+}
+
 func (a *App) HasStopwatch(id string) bool {
 	_, has := a.userData[id]
 	return has

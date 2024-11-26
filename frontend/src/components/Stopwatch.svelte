@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, untrack } from "svelte";
+    import { onDestroy, onMount, untrack } from "svelte";
     import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go/main/App";
     import Trash from "@assets/icons/Trash.svelte";
     import { tweened } from "svelte/motion";
@@ -111,6 +111,10 @@
             }
             time += Date.now() - lastTimeChange;
         }
+    })
+
+    onDestroy(() => {
+        UpdateStopwatchTime(id, active, time);
     })
 
     async function toggleStopwatch() {
