@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount, untrack } from "svelte";
-    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go/main/App";
+    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go_timer_tracker/app";
     import Trash from "@assets/icons/Trash.svelte";
     import { tweened } from "svelte/motion";
     import Reset from "@assets/icons/Reset.svelte";

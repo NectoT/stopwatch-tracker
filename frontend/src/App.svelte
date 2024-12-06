@@ -1,8 +1,8 @@
 <script lang="ts" module>
-    let themeState: main.ColorTheme = $state(main.ColorTheme.Light);
+    let themeState: ColorTheme = $state(ColorTheme.Light);
 
     export let theme = {
-        get state(): main.ColorTheme {
+        get state(): ColorTheme {
             return themeState;
         },
     };
@@ -16,9 +16,9 @@
         GetStopwatchIds,
         GetUserColorTheme,
         SetUserColorTheme,
-    } from "@wails/go/main/App";
+    } from "@wails/go_timer_tracker/app";
     import { fade, fly } from "svelte/transition";
-    import { main } from "@wails/go/models";
+    import { ColorTheme } from "@wails/go_timer_tracker/models";
     import Plus from "./assets/icons/Plus.svelte";
     import { flip } from "svelte/animate";
     import Stopwatch from "./components/Stopwatch.svelte";
@@ -32,14 +32,14 @@
     
     async function toggleColorScheme() {
         let html = document.getElementsByTagName("html")[0];
-        if (themeState == main.ColorTheme.Dark) {
+        if (themeState == ColorTheme.Dark) {
             html.classList.replace("dark", "light");
             await tick();
-            themeState = main.ColorTheme.Light;
+            themeState = ColorTheme.Light;
         } else {
             html.classList.replace("light", "dark");
             await tick();
-            themeState = main.ColorTheme.Dark;
+            themeState = ColorTheme.Dark;
         }
         SetUserColorTheme(themeState);
     }
@@ -64,7 +64,7 @@
 
 <header>
     <button class="light-dark-toggle" onclick={toggleColorScheme}>
-        {#if themeState == main.ColorTheme.Light}
+        {#if themeState == ColorTheme.Light}
             <Sun></Sun>
         {:else}
             <Moon></Moon>

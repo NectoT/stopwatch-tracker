@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { GetStopwatches } from "@wails/go/main/App";
-    import type { main } from "@wails/go/models";
+    import { GetStopwatches } from "@wails/go_timer_tracker/app";
+    import type { StopwatchData } from "@wails/go_timer_tracker/models";
     import { onMount } from "svelte";
     import { Chart, type ChartConfiguration } from "chart.js/auto";
     import type { ActionReturn } from "svelte/action";
     import { theme } from "@App";
-
-    let data: main.StopwatchData[] = $state([]);
+    
+    let data: StopwatchData[] = $state([]);
 
     let fontColor = $derived.by(() => {
         theme.state

@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 // App struct
 type App struct {
-	ctx        context.Context
 	userConfig UserConfig
 	userData   UserData
 }
@@ -22,14 +23,6 @@ const (
 	Light ColorTheme = "light"
 	Dark  ColorTheme = "dark"
 )
-
-var ColorThemes = []struct {
-	Value  ColorTheme
-	TSName string
-}{
-	{Light, "Light"},
-	{Dark, "Dark"},
-}
 
 type UserConfig struct {
 	ColorTheme ColorTheme `json:"ColorTheme"`
@@ -54,11 +47,6 @@ func getConfigPath() (string, error) {
 func getUserDataPath() (string, error) {
 	dataDir, err := os.UserCacheDir()
 	return dataDir + "/timer-tracker-data.json", err
-}
-
-// NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
 }
 
 func createJson[K any](jsonPath string, defaultJson K) {
@@ -86,9 +74,7 @@ func getOrCreateJson[K any](jsonPath string, defaultJson K) K {
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
-
+func (a *App) OnStartup(ctx context.Context, options application.ServiceOptions) error {
 	configPath, err := getConfigPath()
 	if err != nil {
 		panic(err)
@@ -100,6 +86,8 @@ func (a *App) startup(ctx context.Context) {
 		panic(err)
 	}
 	a.userData = getOrCreateJson(dataPath, UserData{})
+
+	return nil
 }
 
 func (a *App) updateUserConfigFile() {
