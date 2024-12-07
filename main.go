@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -15,10 +16,22 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+func getConfigPath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	return configDir + "/timer-tracker-config.json", err
+}
+
+func getUserDataPath() (string, error) {
+	dataDir, err := os.UserCacheDir()
+	return dataDir + "/timer-tracker-data.json", err
+}
+
 // main function serves as the application's entry point. It initializes the application, creates a window,
 // and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
 // logs any error that might occur.
 func main() {
+	configPath, _ := getConfigPath()
+	dataPath, _ := getUserDataPath()
 
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
@@ -27,9 +40,9 @@ func main() {
 	// 'Mac' options tailor the application when running an macOS.
 	app := application.New(application.Options{
 		Name:        "go_timer_tracker",
-		Description: "A demo of using raw HTML & CSS",
+		Description: "Track your time with stopwatches",
 		Services: []application.Service{
-			application.NewService(&App{}),
+			application.NewService(&App{configPath: configPath, dataPath: dataPath}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

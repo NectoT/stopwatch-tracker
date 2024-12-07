@@ -13,6 +13,12 @@ import (
 
 // App struct
 type App struct {
+	// Path to the file that stores config information
+	configPath string
+
+	// Path to the file that stores data information
+	dataPath string
+
 	userConfig UserConfig
 	userData   UserData
 }
@@ -35,25 +41,17 @@ type StopwatchData struct {
 	LastUpdated     time.Time
 	CreatedAt       time.Time
 	TimeAccumulated int
+
 }
 
 type UserData map[string]StopwatchData
-
-func getConfigPath() (string, error) {
-	configDir, err := os.UserConfigDir()
-	return configDir + "/timer-tracker-config.json", err
-}
-
-func getUserDataPath() (string, error) {
-	dataDir, err := os.UserCacheDir()
-	return dataDir + "/timer-tracker-data.json", err
-}
 
 func createJson[K any](jsonPath string, defaultJson K) {
 	configFile, err := os.Create(jsonPath)
 	if err != nil {
 		panic(err)
 	}
+	defer configFile.Close()
 	json.NewEncoder(configFile).Encode(defaultJson)
 }
 
@@ -75,48 +73,30 @@ func getOrCreateJson[K any](jsonPath string, defaultJson K) K {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) OnStartup(ctx context.Context, options application.ServiceOptions) error {
-	configPath, err := getConfigPath()
-	if err != nil {
-		panic(err)
-	}
-	a.userConfig = getOrCreateJson(configPath, UserConfig{ColorTheme: Light})
+	a.userConfig = getOrCreateJson(a.configPath, UserConfig{ColorTheme: Light})
 
-	dataPath, err := getUserDataPath()
-	if err != nil {
-		panic(err)
-	}
-	a.userData = getOrCreateJson(dataPath, UserData{})
+	a.userData = getOrCreateJson(a.dataPath, UserData{})
 
 	return nil
 }
 
 func (a *App) updateUserConfigFile() {
-	configPath, err := getConfigPath()
-	if err != nil {
-		fmt.Println("Could not get a config path")
-		return
-	}
-
-	configFile, err := os.Create(configPath)
+	configFile, err := os.Create(a.configPath)
 	if err != nil {
 		fmt.Println("Could not truncate and open a config file")
 		return
 	}
+	defer configFile.Close()
 	json.NewEncoder(configFile).Encode(a.userConfig)
 }
 
 func (a *App) updateUserDataFile() {
-	dataPath, err := getUserDataPath()
-	if err != nil {
-		fmt.Println("Could not get a data path")
-		return
-	}
-
-	userFile, err := os.Create(dataPath)
+	userFile, err := os.Create(a.dataPath)
 	if err != nil {
 		fmt.Println("Could not truncate and open a data file")
 		return
 	}
+	defer userFile.Close()
 	json.NewEncoder(userFile).Encode(a.userData)
 }
 
