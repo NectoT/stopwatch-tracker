@@ -15,7 +15,7 @@
 :root.light {
     --pr-font-color: var(--violet-12);
     --pr-bg-color: white;
-    --sec-bg-color: var(--stone-4);
+    --sec-bg-color: var(--stone-3);
     --border-color: var(--indigo-12);
 }
 

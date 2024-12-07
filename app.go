@@ -35,13 +35,15 @@ type UserConfig struct {
 }
 
 type StopwatchData struct {
-	IsActive        bool
-	Hue             float32
-	Name            string
-	LastUpdated     time.Time
-	CreatedAt       time.Time
-	TimeAccumulated int
+	IsActive    bool
+	Hue         float32
+	Name        string
+	LastUpdated time.Time
+	CreatedAt   time.Time
 
+	// Time periods at which stopwatch was ticking, where each period is a 2-element array
+	// with first element being the start of the period, and second being the end of it.
+	ActivePeriods [][2]time.Time
 }
 
 type UserData map[string]StopwatchData
@@ -152,11 +154,12 @@ func (a *App) AddStopwatch(id string, name string, hue float32) (bool, error) {
 		return false, errors.New("stopwatch with such id already exists")
 	}
 	a.userData[id] = StopwatchData{
-		Name:      name,
-		Hue:       hue,
-		CreatedAt: time.Now(),
+		Name:          name,
+		Hue:           hue,
+		CreatedAt:     time.Now(),
+		ActivePeriods: [][2]time.Time{},
 	}
-	a.updateUserConfigFile()
+	a.updateUserDataFile()
 	return true, nil
 }
 
@@ -170,18 +173,55 @@ func (a *App) DeleteStopwatch(id string) (bool, error) {
 	return true, nil
 }
 
-func (a *App) UpdateStopwatchTime(id string, timerActive bool, timeAccumulated int) {
+func (a *App) updateCachedStopwatchTime(id string, timerActive bool) {
 	data := a.userData[id]
-	data.TimeAccumulated = timeAccumulated
-	data.IsActive = timerActive
 	data.LastUpdated = time.Now()
+
+	if timerActive == data.IsActive {
+		a.userData[id] = data
+		return // Update periods only if the stopwatch active state was toggled
+	}
+
+	data.IsActive = timerActive
+	if timerActive || len(data.ActivePeriods) == 0 {
+		data.ActivePeriods = append(data.ActivePeriods, [2]time.Time{time.Now()})
+	} else {
+		data.ActivePeriods[len(data.ActivePeriods)-1][1] = time.Now()
+	}
 	a.userData[id] = data
-	a.updateUserDataFile()
 }
 
-func (a *App) UpdateStopwatchName(id string, name string) {
+// Returns false if there was no stopwatch with the given id
+func (a *App) UpdateStopwatchTime(id string, timerActive bool) bool {
+	if !a.HasStopwatch(id) {
+		return false
+	}
+	a.updateCachedStopwatchTime(id, timerActive)
+	a.updateUserDataFile()
+	return true
+}
+
+// Returns false if there was no stopwatch with the given id
+func (a *App) ResetStopwatchTime(id string, timerActive bool) bool {
+	if !a.HasStopwatch(id) {
+		return false
+	}
 	data := a.userData[id]
+	data.ActivePeriods = [][2]time.Time{}
+	a.userData[id] = data
+	a.updateCachedStopwatchTime(id, timerActive)
+	a.updateUserDataFile()
+	return true
+}
+
+// Returns false if there was no stopwatch with the given id
+func (a *App) UpdateStopwatchName(id string, name string) bool {
+	data, exists := a.userData[id]
+	if !exists {
+		return false
+	}
 	data.Name = name
 	a.userData[id] = data
 	a.updateUserDataFile()
+	return true
 }

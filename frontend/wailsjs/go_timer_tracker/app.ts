@@ -49,17 +49,31 @@ export function HasStopwatch(id: string): Promise<boolean> & { cancel(): void } 
     return $resultPromise;
 }
 
+/**
+ * Returns false if there was no stopwatch with the given id
+ */
+export function ResetStopwatchTime(id: string, timerActive: boolean): Promise<boolean> & { cancel(): void } {
+    let $resultPromise = $Call.ByID(3010943266, id, timerActive) as any;
+    return $resultPromise;
+}
+
 export function SetUserColorTheme(theme: $models.ColorTheme): Promise<void> & { cancel(): void } {
     let $resultPromise = $Call.ByID(696175552, theme) as any;
     return $resultPromise;
 }
 
-export function UpdateStopwatchName(id: string, name: string): Promise<void> & { cancel(): void } {
+/**
+ * Returns false if there was no stopwatch with the given id
+ */
+export function UpdateStopwatchName(id: string, name: string): Promise<boolean> & { cancel(): void } {
     let $resultPromise = $Call.ByID(2566254020, id, name) as any;
     return $resultPromise;
 }
 
-export function UpdateStopwatchTime(id: string, timerActive: boolean, timeAccumulated: number): Promise<void> & { cancel(): void } {
-    let $resultPromise = $Call.ByID(398299862, id, timerActive, timeAccumulated) as any;
+/**
+ * Returns false if there was no stopwatch with the given id
+ */
+export function UpdateStopwatchTime(id: string, timerActive: boolean): Promise<boolean> & { cancel(): void } {
+    let $resultPromise = $Call.ByID(398299862, id, timerActive) as any;
     return $resultPromise;
 }

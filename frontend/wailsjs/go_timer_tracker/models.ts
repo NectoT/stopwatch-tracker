@@ -22,5 +22,10 @@ export interface StopwatchData {
     "Name": string;
     "LastUpdated": time$0.Time;
     "CreatedAt": time$0.Time;
-    "TimeAccumulated": number;
+
+    /**
+     * Time periods at which stopwatch was ticking, where each period is a 2-element array
+     * with first element being the start of the period, and second being the end of it.
+     */
+    "ActivePeriods": time$0.Time[][] | null;
 }

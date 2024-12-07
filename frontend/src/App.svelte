@@ -6,6 +6,16 @@
             return themeState;
         },
     };
+
+    export let themeColors = $state({
+        background: {
+            primary: '#000000',
+            secondary: '#000000'
+        },
+        font: {
+            primary: '#000000'
+        }
+    })
 </script>
 
 <script lang="ts">
@@ -29,7 +39,13 @@
     import Stats from "@components/Stats.svelte";
 
     let timerIds: SvelteSet<string> = $state(new SvelteSet());
-    
+
+    function writeDownThemeColors() {
+        themeColors.font.primary = getComputedStyle(document.body).getPropertyValue("--pr-font-color");
+        themeColors.background.primary = getComputedStyle(document.body).getPropertyValue("--pr-bg-color");
+        themeColors.background.secondary = getComputedStyle(document.body).getPropertyValue("--sec-bg-color");
+    }
+
     async function toggleColorScheme() {
         let html = document.getElementsByTagName("html")[0];
         if (themeState == ColorTheme.Dark) {
@@ -41,6 +57,7 @@
             await tick();
             themeState = ColorTheme.Dark;
         }
+        writeDownThemeColors();
         SetUserColorTheme(themeState);
     }
 
@@ -48,6 +65,7 @@
         GetUserColorTheme().then((e) => {
             themeState = e;
             document.getElementsByTagName("html")[0].classList.add(e);
+            writeDownThemeColors();
         });
         GetStopwatchIds().then(ids => timerIds = new SvelteSet(ids));
     });

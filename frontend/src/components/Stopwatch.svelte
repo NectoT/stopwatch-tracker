@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount, untrack } from "svelte";
-    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go_timer_tracker/app";
+    import { AddStopwatch, DeleteStopwatch, GetStopwatch, HasStopwatch, ResetStopwatchTime, UpdateStopwatchName, UpdateStopwatchTime } from "@wails/go_timer_tracker/app";
     import Trash from "@assets/icons/Trash.svelte";
     import { tweened } from "svelte/motion";
     import Reset from "@assets/icons/Reset.svelte";
@@ -73,12 +73,20 @@
             hue = data.Hue;
             name = data.Name;
             active = data.IsActive;
-            time = data.TimeAccumulated;
-            if (active) {
-                // If timer is active, then it kept going since the last time 
-                // we updated the timer backend
-                time += Date.now() - Date.parse(data.LastUpdated)
+
+            time = 0;
+            if (data.ActivePeriods !== null && data.ActivePeriods.length > 0) {
+                let finishedPeriods = active ? data.ActivePeriods.length - 1 : data.ActivePeriods.length;
+                for(let i = 0; i < finishedPeriods; i++) {
+                    let period = data.ActivePeriods[i] as string[];
+                    time += Date.parse(period[1]) - Date.parse(period[0]);
+                }
+                if (active) {
+                    let periodStart = data.ActivePeriods[data.ActivePeriods.length - 1][0];
+                    time += Date.now() - Date.parse(periodStart)
+                }
             }
+
             initialArrowRotation = (time % 1000) / 1000 * 360;
             loading = false;
         } else {
@@ -114,19 +122,22 @@
     })
 
     onDestroy(() => {
-        UpdateStopwatchTime(id, active, time);
+        UpdateStopwatchTime(id, active);
     })
 
     async function toggleStopwatch() {
         active = !active;
-        await UpdateStopwatchTime(id, active, time)
+        await UpdateStopwatchTime(id, active)
     }
 
     function startDestruction() {
         destructionProgress.set(1).then(
             () => {
                 onDelete();
-                DeleteStopwatch(id)
+                let ok = DeleteStopwatch(id)
+                if (!ok) {
+                    console.error("Could not delete a stopwatch")
+                }
             }
         );
     }
@@ -139,7 +150,7 @@
         resetProgress.set(1).then(
             () => {
                 time = time % 1000;
-                UpdateStopwatchTime(id, active, time);
+                ResetStopwatchTime(id, active);
                 cancelReset();
             }
         );
